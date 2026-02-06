@@ -4,15 +4,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <string>
-
-struct RenderOBJ {
-    // Простейший меш: указатель на vertex buffer, количество вершин
-    Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
-    UINT vertexCount = 0;
-
-    // Позиция объекта
-    DirectX::XMFLOAT3 position{ 0.f, 0.f, 0.f };
-};
+//TODO : ECS and struct Renderable objects
 
 class Renderer {
 public:
@@ -26,7 +18,7 @@ public:
     void EndFrame();
     void Shutdown();
 
-    void Render(const std::vector<RenderOBJ>& objects);
+    void Render();
 
 private:
     bool CreateDeviceAndSwapChain(HWND hwnd, uint32_t width, uint32_t height);

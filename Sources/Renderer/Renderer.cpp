@@ -101,6 +101,6 @@ void Renderer::Shutdown() {
     m_device.Reset();
 }
 
-void Renderer::Render(const std::vector<RenderOBJ>& objects)
+void Renderer::Render()
 {
 }
