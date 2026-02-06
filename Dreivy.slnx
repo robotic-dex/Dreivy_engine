@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Dreivy.vcxproj" Id="e161f148-5961-4117-ac6c-49de24a27f06" />
+</Solution>
