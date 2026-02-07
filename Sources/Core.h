@@ -5,7 +5,11 @@
 #include <functional>
 #include "WindowManager/WindowManager.h"
 #include "Renderer/Renderer.h"
-
+struct RendererResizeEvent {
+    uint32_t width;
+    uint32_t height;
+	bool IsNeedResize = false;
+};
 class Core {
 public:
     Core() = default;
@@ -37,7 +41,7 @@ private:
     std::unique_ptr<Renderer>      m_renderer;
 
     bool m_running = false;
-
+    RendererResizeEvent Resize_t;
 	std::vector<std::function<void(Core&)>> m_funcs;      //  being called every frame in Run
 	std::vector<std::function<void(Core&)>> m_initFuncs;  // called once at Init, after systems are initialized
 };

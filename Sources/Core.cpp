@@ -90,7 +90,11 @@ void Core::SetupCallbacks() {
     m_window->SetResizeCallback(
         [this](uint32_t w, uint32_t h) {
             if (w == 0 || h == 0) return;
-            if (m_renderer) m_renderer->Resize(w, h);
+            
+            Resize_t.width = w;
+            Resize_t.height = h;
+            Resize_t.IsNeedResize = true;
+
         }
     );
 
@@ -120,6 +124,11 @@ void Core::SetupCallbacks() {
 
 
 void Core::Update() {
+    //if resize is needed we call renderer to resize.
+	if (Resize_t.IsNeedResize && m_renderer) {
+        m_renderer->Resize(Resize_t.width, Resize_t.height);
+        Resize_t.IsNeedResize = false;
+    }
 	// Call every function registered via addFunc
     for (auto& f : m_funcs) {
         try { f(*this); }
