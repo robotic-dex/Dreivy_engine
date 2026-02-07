@@ -121,6 +121,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>%(ProjectDir)Sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -132,7 +133,7 @@
     <ClCompile Include="Sources\Renderer\Renderer.cpp" />
     <ClCompile Include="Sources\Core.cpp" />
     <ClCompile Include="Sources\Renderer\RenderQueue.h" />
-    <ClCompile Include="Sources\Source.cpp" />
+    <ClCompile Include="Sources\main.cpp" />
     <ClCompile Include="Sources\WindowManager\WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +143,7 @@
     <ClInclude Include="Sources\World\ECS\Component\Mesh.h" />
     <ClInclude Include="Sources\World\ECS\Component\Transform.h" />
     <ClInclude Include="Sources\World\ECS\Entity\Entity.h" />
+    <ClInclude Include="Sources\World\ECS\System\RendererBuilder.h" />
     <ClInclude Include="Sources\World\ECS\World.h" />
   </ItemGroup>
   <ItemGroup>

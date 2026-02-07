@@ -5,7 +5,9 @@
 #include <functional>
 #include "WindowManager/WindowManager.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/RenderQueue.h"
 #include "World/ECS/World.h"
+#include "World/ECS/System/RendererBuilder.h"
 struct RendererResizeEvent {
     uint32_t width;
     uint32_t height;
@@ -25,7 +27,6 @@ public:
 	Core& addFunc(const std::function<void(Core&)>& func);       // For Update(every frame)
 	Core& addInitFunc(const std::function<void(Core&)>& func);   // For Init(only once after Init)
 
-    // ===== Геттеры для внутренних систем =====
     WindowManager* getWindow() { return m_window.get(); }
     Renderer* getRenderer() { return m_renderer.get(); }
     World* getWorld() { return m_world.get(); }
@@ -42,7 +43,7 @@ private:
 private:
     std::unique_ptr<WindowManager> m_window;
     std::unique_ptr<Renderer>      m_renderer;
-	
+	std::unique_ptr< RenderQueue> m_renderQueue;
     bool m_running = false;
     RendererResizeEvent Resize_t;
     std::unique_ptr<World> m_world;

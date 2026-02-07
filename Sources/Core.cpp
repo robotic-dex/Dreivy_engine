@@ -15,7 +15,8 @@ Core& Core::Init() {
             throw std::runtime_error("InitSystem failed");
 
         SetupCallbacks();
-
+        m_world = std::make_unique<World>();
+        m_renderQueue = std::make_unique<RenderQueue>();
 		// Call every function registered via addInitFunc ( only once)
         for (auto& f : m_initFuncs) {
             try { f(*this); }
@@ -28,7 +29,7 @@ Core& Core::Init() {
         m_running = false;
         return *this;
     }
-    m_world = std::make_unique<World>();
+   
     m_running = true;
     return *this;
 }
@@ -140,7 +141,10 @@ void Core::Update() {
 
 void Core::Draw() {
     if (!m_renderer) return;
+    m_renderQueue->Clear();
+    BuildRenderQueue(*m_world, *m_renderQueue);
+
     m_renderer->BeginFrame(0.1f, 0.1f, 0.15f, 1.0f);
-	// TODO pass objects to renderer
+    m_renderer->Draw(*m_renderQueue);
     m_renderer->EndFrame();
 }
