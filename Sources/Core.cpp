@@ -28,7 +28,7 @@ Core& Core::Init() {
         m_running = false;
         return *this;
     }
-
+    m_world = std::make_unique<World>();
     m_running = true;
     return *this;
 }
@@ -68,7 +68,7 @@ Core& Core::addInitFunc(const std::function<void(Core&)>& func) {
 
 void Core::InitWindow() {
     WindowManager::Config cfg;
-    cfg.title = L"Application";
+    cfg.title = L"Dreivy!";
     cfg.width = 1280;
     cfg.height = 720;
     cfg.resizable = true;

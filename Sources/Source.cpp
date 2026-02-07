@@ -3,10 +3,20 @@
 
 // Test if fucntions is really called once?
 void setupScene(Core& core) {
-    if (auto renderer = core.getRenderer()) {
-        MessageBoxA(nullptr, "Called once at Init?", "Info", MB_OK);
-    }
+    World* world = core.getWorld();
+    if (!world) return;
+
+    Entity e = world->CreateEntity();
+
+    Transform& t = world->GetTransform(e);
+    t.position = { 0.0f, 0.0f, 0.0f };
+    t.rotation = { 0.0f, 0.0f, 0.0f };
+    t.scale = { 1.0f, 1.0f, 1.0f };
+
+    Mesh& m = world->GetMesh(e);
+    m.meshId = 0; 
 }
+
 
 
 void updateGame(Core& core) {
