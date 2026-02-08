@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Renderer/MeshHandle.h"
+
 struct Mesh {
-    int meshId = -1;
+    MeshHandle handle = InvalidMesh;
 };

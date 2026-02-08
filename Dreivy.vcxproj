@@ -137,8 +137,14 @@
     <ClCompile Include="Sources\WindowManager\WindowManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Sources\Renderer\MeshData.h" />
+    <ClInclude Include="Sources\Renderer\MeshHandle.h" />
+    <ClInclude Include="Sources\Math\Time.h" />
+    <ClInclude Include="Sources\Math\TransformUtils.h" />
+    <ClInclude Include="Sources\Renderer\MeshStorage.h" />
     <ClInclude Include="Sources\Renderer\Renderer.h" />
     <ClInclude Include="Sources\Core.h" />
+    <ClInclude Include="Sources\Renderer\StaticMeshes.h" />
     <ClInclude Include="Sources\WindowManager\WindowManager.h" />
     <ClInclude Include="Sources\World\ECS\Component\Mesh.h" />
     <ClInclude Include="Sources\World\ECS\Component\Transform.h" />
@@ -147,6 +153,12 @@
     <ClInclude Include="Sources\World\ECS\World.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CONTRIBUTING.md">
+      <SubType>
+      </SubType>
+    </None>
+    <None Include="README.md" />
+    <None Include="Sources\Math\Readme.md" />
     <None Include="Sources\WindowManager\WindowManager.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

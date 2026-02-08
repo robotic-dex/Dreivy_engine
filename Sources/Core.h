@@ -8,6 +8,8 @@
 #include "Renderer/RenderQueue.h"
 #include "World/ECS/World.h"
 #include "World/ECS/System/RendererBuilder.h"
+#include "Renderer/MeshStorage.h"
+
 struct RendererResizeEvent {
     uint32_t width;
     uint32_t height;
@@ -31,7 +33,8 @@ public:
     Renderer* getRenderer() { return m_renderer.get(); }
     World* getWorld() { return m_world.get(); }
     const World* getWorld() const { return m_world.get(); }
-
+    MeshStorage* getMeshStorage() { return m_meshStorage.get(); }
+    const MeshStorage* getMeshStorage() const { return m_meshStorage.get(); }
 private:
     void InitWindow();
     bool InitSystem();
@@ -44,6 +47,7 @@ private:
     std::unique_ptr<WindowManager> m_window;
     std::unique_ptr<Renderer>      m_renderer;
 	std::unique_ptr< RenderQueue> m_renderQueue;
+    std::unique_ptr<MeshStorage>   m_meshStorage;
     bool m_running = false;
     RendererResizeEvent Resize_t;
     std::unique_ptr<World> m_world;

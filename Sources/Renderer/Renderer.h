@@ -2,7 +2,9 @@
 #include <wrl/client.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
-
+#include <string_view>
+#include "MeshStorage.h"
+#include <unordered_map>
 class RenderQueue;
 struct Transform;
 
@@ -16,15 +18,18 @@ public:
 
     void BeginFrame(float r, float g, float b, float a);
     void Draw(const RenderQueue& queue);
+    void DrawMesh(MeshHandle mesh, DirectX::XMMATRIX world);
     void EndFrame();
     void Shutdown();
-
+    void SetMeshStorage(MeshStorage* storage) {
+        m_meshStorage = storage;
+    }
 private:
     struct Vertex {
         DirectX::XMFLOAT3 pos;
     };
 
-    struct CB_Matrices {
+    struct alignas(16) CB_Matrices {
         DirectX::XMFLOAT4X4 mvp;
     };
 
@@ -36,7 +41,7 @@ private:
     bool CreateConstantBuffer();
     bool CreateRasterizerState();
 
-    void DrawMesh(int meshId, const Transform& t);
+    
 
 private:
     uint32_t m_width = 0;
@@ -56,6 +61,14 @@ private:
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_indexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbMatrices;
+    struct GpuMesh {
+        Microsoft::WRL::ComPtr<ID3D11Buffer> vb;
+        Microsoft::WRL::ComPtr<ID3D11Buffer> ib;
+        UINT indexCount = 0;
+    };
+
+    std::unordered_map<MeshHandle, GpuMesh> m_gpuMeshes;
+    MeshStorage* m_meshStorage = nullptr; // injected
 
     Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterState;
 

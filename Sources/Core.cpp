@@ -1,7 +1,7 @@
 #include "Core.h"
 #include <windows.h>
 #include <stdexcept>
-
+#include "Math/Time.h"
 Core::~Core() {
     Shutdown();
 }
@@ -16,7 +16,9 @@ Core& Core::Init() {
 
         SetupCallbacks();
         m_world = std::make_unique<World>();
+        m_meshStorage = std::make_unique<MeshStorage>();
         m_renderQueue = std::make_unique<RenderQueue>();
+        m_renderer->SetMeshStorage(m_meshStorage.get());
 		// Call every function registered via addInitFunc ( only once)
         for (auto& f : m_initFuncs) {
             try { f(*this); }
@@ -37,6 +39,7 @@ Core& Core::Init() {
 
 Core& Core::Run() {
     while (m_running && m_window && m_window->ProcessMessages()) {
+		Time::Update();
         Update();
         Draw();
     }
@@ -143,6 +146,7 @@ void Core::Draw() {
     if (!m_renderer) return;
     m_renderQueue->Clear();
     BuildRenderQueue(*m_world, *m_renderQueue);
+   
 
     m_renderer->BeginFrame(0.1f, 0.1f, 0.15f, 1.0f);
     m_renderer->Draw(*m_renderQueue);

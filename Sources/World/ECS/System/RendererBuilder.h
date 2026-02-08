@@ -3,21 +3,41 @@
 
 #include "../World.h"
 #include "Renderer/RenderQueue.h"
-
+#include "world/ecs/component/mesh.h"
+#include <windows.h>
+#include "Math/TransformUtils.h"
 inline void BuildRenderQueue(World& world, RenderQueue& queue) {
     queue.Clear();
+    /**
+    * The last entity ID equals EntityCount(),
+    * so iteration must use <=, not <.
+    *
+    * NOTE: I personally forgot this once and spent about an hour
+    * debugging why the last entity was not rendering.
+    */
 
+    for (Entity e = 0; e <= world.EntityCount(); ++e) {
 
-    const size_t count = world.transforms.size();
-
-    for (Entity e = 0; e < count; ++e) {
-        const Transform& t = world.GetTransform(e);
-        const Mesh& m = world.GetMesh(e);
-
-       
-        if (m.meshId < 0)
+        Transform* t = world.TryGetComponent<Transform>(e);
+        Mesh* m = world.TryGetComponent<Mesh>(e);
+        if (!t || !m || m->handle == InvalidMesh)
             continue;
 
-        queue.Submit(t, m.meshId);
+        if (!t || !m)
+            continue;
+
+        
+
+       
+
+       
+
+        XMMATRIX wm = BuildWorldMatrix(*t);
+
+        XMFLOAT4X4 world;
+        XMStoreFloat4x4(&world, wm);
+
+        queue.Submit(world, m->handle, e);
+
     }
 }

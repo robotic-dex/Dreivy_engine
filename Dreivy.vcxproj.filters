@@ -56,8 +56,29 @@
     <ClInclude Include="Sources\World\ECS\System\RendererBuilder.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Math\TransformUtils.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Math\Time.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Renderer\MeshHandle.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Renderer\MeshData.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Renderer\MeshStorage.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Renderer\StaticMeshes.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Sources\WindowManager\WindowManager.md" />
+    <None Include="Sources\Math\Readme.md" />
+    <None Include="CONTRIBUTING.md" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

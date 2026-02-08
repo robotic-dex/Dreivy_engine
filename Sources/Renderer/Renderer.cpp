@@ -1,10 +1,10 @@
 #include "Renderer.h"
-#include "Renderer/RenderQueue.h"
+#include "RenderQueue.h"
 #include "world/ecs/component/Transform.h"
 
 #include <dxgi.h>
 #include <d3dcompiler.h>
-
+#include <string>
 using namespace DirectX;
 
 Renderer::~Renderer() { Shutdown(); }
@@ -13,15 +13,18 @@ bool Renderer::Init(HWND hwnd, uint32_t width, uint32_t height) {
     m_width = width;
     m_height = height;
 
-    if (!CreateDeviceAndSwapChain(hwnd, width, height)) return false;
-    if (!CreateRenderTarget()) return false;
-    if (!CreateDepthBuffer()) return false;
-    if (!CreateShaders()) return false;
-    if (!CreateCube()) return false;
-    if (!CreateConstantBuffer()) return false;
-    if (!CreateRasterizerState()) return false;
-
+    if (!CreateDeviceAndSwapChain(hwnd, width, height)) goto fail;
+    if (!CreateRenderTarget()) goto fail;
+    if (!CreateDepthBuffer()) goto fail;
+    if (!CreateShaders()) goto fail;
+    if (!CreateCube()) goto fail;
+    if (!CreateConstantBuffer()) goto fail;
+    if (!CreateRasterizerState()) goto fail;
+    
     return true;
+fail:
+	MessageBoxA(hwnd, "Failed to initialize renderer.", "Initialization Error", MB_OK | MB_ICONERROR);
+    return false;
 }
 
 bool Renderer::CreateDeviceAndSwapChain(HWND hwnd, uint32_t w, uint32_t h) {
@@ -209,34 +212,36 @@ void Renderer::BeginFrame(float r, float g, float b, float a) {
     m_context->RSSetViewports(1, &vp);
 }
 
-void Renderer::Draw(const RenderQueue& q) {
-    for (auto& i : q.GetItems())
-        DrawMesh(i.meshId, *i.transform);
+void Renderer::Draw(const RenderQueue& q)
+{
+    for (const auto& item : q.GetItems()) {
+        DirectX::XMMATRIX world =
+            DirectX::XMLoadFloat4x4(&item.world);
+
+        DrawMesh(item.mesh, world);
+    }
 }
 
-void Renderer::DrawMesh(int id, const Transform& t) {
-    if (id != 0) return;
+void Renderer::DrawMesh(MeshHandle mesh, DirectX::XMMATRIX world)
+{
+    using namespace DirectX;
 
-    XMMATRIX world =
-        XMMatrixScaling(t.scale.x, t.scale.y, t.scale.z) *
-        XMMatrixRotationRollPitchYaw(t.rotation.x, t.rotation.y, t.rotation.z) *
-        XMMatrixTranslation(t.position.x, t.position.y, t.position.z);
-
+    // View
     XMMATRIX view = XMMatrixLookAtLH(
         XMVectorSet(0, 0, -5, 1),
         XMVectorSet(0, 0, 0, 1),
         XMVectorSet(0, 1, 0, 0)
     );
 
-
+    // Projection
     XMMATRIX proj = XMMatrixPerspectiveFovLH(
         XM_PIDIV4,
-        (float)m_width / m_height,
-        0.1f,    
-        1000.f
+        static_cast<float>(m_width) / m_height,
+        0.1f,
+        1000.0f
     );
 
-
+    // MVP
     CB_Matrices cb;
     XMStoreFloat4x4(&cb.mvp, world * view * proj);
 
@@ -247,19 +252,40 @@ void Renderer::DrawMesh(int id, const Transform& t) {
         0, 0
     );
 
-    m_context->VSSetConstantBuffers(0, 1, m_cbMatrices.GetAddressOf());
+    m_context->VSSetConstantBuffers(
+        0, 1,
+        m_cbMatrices.GetAddressOf()
+    );
 
-    UINT s = sizeof(Vertex), o = 0;
-    m_context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &s, &o);
-    m_context->IASetIndexBuffer(m_indexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0);
-    m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    // Geometry (пока куб-заглушка)
+    UINT stride = sizeof(Vertex);
+    UINT offset = 0;
+
+    m_context->IASetVertexBuffers(
+        0, 1,
+        m_vertexBuffer.GetAddressOf(),
+        &stride, &offset
+    );
+
+    m_context->IASetIndexBuffer(
+        m_indexBuffer.Get(),
+        DXGI_FORMAT_R16_UINT,
+        0
+    );
+
+    m_context->IASetPrimitiveTopology(
+        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
+    );
+
     m_context->IASetInputLayout(m_inputLayout.Get());
     m_context->VSSetShader(m_vs.Get(), nullptr, 0);
     m_context->PSSetShader(m_ps.Get(), nullptr, 0);
+
     m_context->DrawIndexed(m_indexCount, 0, 0);
 }
 
-void Renderer::EndFrame() { m_swapChain->Present(1, 0); }
+
+void Renderer::EndFrame() { m_swapChain->Present(0, 0); }
 
 void Renderer::Resize(uint32_t w, uint32_t h) {
     if (!m_swapChain) return;

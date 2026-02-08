@@ -1,19 +1,28 @@
 #pragma once
 #include <vector>
+#include <string_view>
+#include <DirectXMath.h>
+#include "Renderer/MeshHandle.h"
+using namespace DirectX;
+using Entity = uint32_t;
 
-// forward declaration
-struct Transform;
 
 struct RenderItem {
-    const Transform* transform;
-    int meshId;
+    DirectX::XMFLOAT4X4 world;
+    MeshHandle mesh;
+    Entity id;
 };
+
+
 
 class RenderQueue {
 public:
-    void Submit(const Transform& t, int meshId) {
-        items.push_back({ &t, meshId });
+    void Submit(const XMFLOAT4X4& world, MeshHandle mesh, Entity id) {
+        items.push_back({ world, mesh, id });
     }
+
+
+
 
     const std::vector<RenderItem>& GetItems() const {
         return items;
