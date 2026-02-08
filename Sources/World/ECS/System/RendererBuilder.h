@@ -1,4 +1,3 @@
-// ECS/System/RenderQueueBuilder.h
 #pragma once
 
 #include "../World.h"
@@ -16,15 +15,14 @@ inline void BuildRenderQueue(World& world, RenderQueue& queue) {
     * debugging why the last entity was not rendering.
     */
 
-    for (Entity e = 0; e <= world.EntityCount(); ++e) {
+    for (Entity e = 1; e <= world.EntityCount(); ++e) {
 
         Transform* t = world.TryGetComponent<Transform>(e);
         Mesh* m = world.TryGetComponent<Mesh>(e);
         if (!t || !m || m->handle == InvalidMesh)
             continue;
 
-        if (!t || !m)
-            continue;
+       
 
         
 
@@ -38,6 +36,7 @@ inline void BuildRenderQueue(World& world, RenderQueue& queue) {
         XMStoreFloat4x4(&world, wm);
 
         queue.Submit(world, m->handle, e);
+        OutputDebugStringA(("Submitting entity " + std::to_string(e) + "\n").c_str());
 
     }
 }

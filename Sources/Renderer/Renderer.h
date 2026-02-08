@@ -7,13 +7,19 @@
 #include <unordered_map>
 class RenderQueue;
 struct Transform;
-
+struct GpuMesh {
+    Microsoft::WRL::ComPtr<ID3D11Buffer> vb;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> ib;
+    UINT indexCount = 0;
+};
 class Renderer {
 public:
     Renderer() = default;
     ~Renderer();
 
     bool Init(HWND hwnd, uint32_t width, uint32_t height);
+    GpuMesh& GetOrCreateGpuMesh(MeshHandle handle);
+    GpuMesh CreateGpuMesh(const MeshData& cpu);
     void Resize(uint32_t width, uint32_t height);
 
     void BeginFrame(float r, float g, float b, float a);
@@ -61,11 +67,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_vertexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_indexBuffer;
     Microsoft::WRL::ComPtr<ID3D11Buffer> m_cbMatrices;
-    struct GpuMesh {
-        Microsoft::WRL::ComPtr<ID3D11Buffer> vb;
-        Microsoft::WRL::ComPtr<ID3D11Buffer> ib;
-        UINT indexCount = 0;
-    };
+    
 
     std::unordered_map<MeshHandle, GpuMesh> m_gpuMeshes;
     MeshStorage* m_meshStorage = nullptr; // injected

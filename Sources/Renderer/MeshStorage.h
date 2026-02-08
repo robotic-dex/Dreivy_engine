@@ -1,4 +1,3 @@
-// Renderer/MeshStorage.h
 #pragma once
 #include <vector>
 #include <cassert>

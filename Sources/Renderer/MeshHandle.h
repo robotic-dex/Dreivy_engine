@@ -1,4 +1,3 @@
-// Renderer/MeshHandle.h
 #pragma once
 #include <cstdint>
 

@@ -15,19 +15,16 @@ Entity g_cube = InvalidEntity;
 Entity g_cube2 = InvalidEntity;
 
 MeshHandle g_cubeMesh = InvalidMesh;
-
 void setupScene(Core& core)
 {
     World* world = core.getWorld();
     if (!world) return;
 
-    // --- create test cube mesh (CPU) ---
+
     MeshData cube = CreateTestCube();
-    MeshHandle h =
-        core.getMeshStorage()->Add(CreateTestCube());
+    g_cubeMesh = core.getMeshStorage()->Add(cube); 
 
-
-    // --------- first cube ----------
+   
     g_cube = world->CreateEntity();
 
     world->AddComponent<Transform>(g_cube);
@@ -40,7 +37,7 @@ void setupScene(Core& core)
 
     world->GetComponent<Mesh>(g_cube).handle = g_cubeMesh;
 
-    // --------- second cube ----------
+   
     g_cube2 = world->CreateEntity();
 
     world->AddComponent<Transform>(g_cube2);
@@ -53,6 +50,7 @@ void setupScene(Core& core)
 
     world->GetComponent<Mesh>(g_cube2).handle = g_cubeMesh;
 }
+
 
 void updateGame(Core& core)
 {

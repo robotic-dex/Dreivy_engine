@@ -17,7 +17,6 @@ bool Renderer::Init(HWND hwnd, uint32_t width, uint32_t height) {
     if (!CreateRenderTarget()) goto fail;
     if (!CreateDepthBuffer()) goto fail;
     if (!CreateShaders()) goto fail;
-    if (!CreateCube()) goto fail;
     if (!CreateConstantBuffer()) goto fail;
     if (!CreateRasterizerState()) goto fail;
     
@@ -25,6 +24,55 @@ bool Renderer::Init(HWND hwnd, uint32_t width, uint32_t height) {
 fail:
 	MessageBoxA(hwnd, "Failed to initialize renderer.", "Initialization Error", MB_OK | MB_ICONERROR);
     return false;
+}
+GpuMesh& Renderer::GetOrCreateGpuMesh(MeshHandle handle)
+{
+    auto it = m_gpuMeshes.find(handle);
+    if (it != m_gpuMeshes.end())
+        return it->second;
+
+    const MeshData* cpu = m_meshStorage->Get(handle);
+    assert(cpu && "Invalid MeshHandle");
+
+    GpuMesh gpu = CreateGpuMesh(*cpu);
+    return m_gpuMeshes.emplace(handle, std::move(gpu)).first->second;
+}
+
+GpuMesh Renderer::CreateGpuMesh(const MeshData& cpu)
+{
+    GpuMesh mesh;
+    mesh.indexCount = static_cast<UINT>(cpu.indices.size());
+
+    // --- Vertex buffer ---
+    std::vector<Vertex> vertices;
+    vertices.reserve(cpu.positions.size());
+
+    for (const auto& p : cpu.positions) {
+        vertices.push_back({ p });
+    }
+
+    D3D11_BUFFER_DESC vbd{};
+    vbd.Usage = D3D11_USAGE_DEFAULT;
+    vbd.ByteWidth = UINT(vertices.size() * sizeof(Vertex));
+    vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA vinit{};
+    vinit.pSysMem = vertices.data();
+
+    m_device->CreateBuffer(&vbd, &vinit, &mesh.vb);
+
+    
+    D3D11_BUFFER_DESC ibd{};
+    ibd.Usage = D3D11_USAGE_DEFAULT;
+    ibd.ByteWidth = UINT(cpu.indices.size() * sizeof(uint32_t));
+    ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA iinit{};
+    iinit.pSysMem = cpu.indices.data();
+
+    m_device->CreateBuffer(&ibd, &iinit, &mesh.ib);
+
+    return mesh;
 }
 
 bool Renderer::CreateDeviceAndSwapChain(HWND hwnd, uint32_t w, uint32_t h) {
@@ -221,68 +269,53 @@ void Renderer::Draw(const RenderQueue& q)
         DrawMesh(item.mesh, world);
     }
 }
-
 void Renderer::DrawMesh(MeshHandle mesh, DirectX::XMMATRIX world)
 {
     using namespace DirectX;
 
-    // View
+    GpuMesh& gm = GetOrCreateGpuMesh(mesh);
+
     XMMATRIX view = XMMatrixLookAtLH(
         XMVectorSet(0, 0, -5, 1),
         XMVectorSet(0, 0, 0, 1),
         XMVectorSet(0, 1, 0, 0)
     );
 
-    // Projection
     XMMATRIX proj = XMMatrixPerspectiveFovLH(
         XM_PIDIV4,
-        static_cast<float>(m_width) / m_height,
+        float(m_width) / m_height,
         0.1f,
         1000.0f
     );
 
-    // MVP
     CB_Matrices cb;
     XMStoreFloat4x4(&cb.mvp, world * view * proj);
 
     m_context->UpdateSubresource(
-        m_cbMatrices.Get(),
-        0, nullptr,
-        &cb,
-        0, 0
+        m_cbMatrices.Get(), 0, nullptr, &cb, 0, 0
     );
 
-    m_context->VSSetConstantBuffers(
-        0, 1,
-        m_cbMatrices.GetAddressOf()
-    );
+    m_context->VSSetConstantBuffers(0, 1, m_cbMatrices.GetAddressOf());
 
-    // Geometry (пока куб-заглушка)
     UINT stride = sizeof(Vertex);
     UINT offset = 0;
 
     m_context->IASetVertexBuffers(
-        0, 1,
-        m_vertexBuffer.GetAddressOf(),
-        &stride, &offset
+        0, 1, gm.vb.GetAddressOf(), &stride, &offset
     );
 
     m_context->IASetIndexBuffer(
-        m_indexBuffer.Get(),
-        DXGI_FORMAT_R16_UINT,
-        0
+        gm.ib.Get(), DXGI_FORMAT_R32_UINT, 0
     );
 
-    m_context->IASetPrimitiveTopology(
-        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-    );
-
+    m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_context->IASetInputLayout(m_inputLayout.Get());
     m_context->VSSetShader(m_vs.Get(), nullptr, 0);
     m_context->PSSetShader(m_ps.Get(), nullptr, 0);
 
-    m_context->DrawIndexed(m_indexCount, 0, 0);
+    m_context->DrawIndexed(gm.indexCount, 0, 0);
 }
+
 
 
 void Renderer::EndFrame() { m_swapChain->Present(0, 0); }

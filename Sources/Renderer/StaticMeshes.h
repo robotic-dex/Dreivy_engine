@@ -1,4 +1,3 @@
-// Renderer/StaticMeshes.h
 #pragma once
 #include "MeshData.h"
 
@@ -6,16 +5,17 @@ inline MeshData CreateTestCube()
 {
     MeshData mesh;
 
+    // 1 x 3 x 1 box (X, Y, Z)
     mesh.positions = {
-        { -0.5f, -0.5f, -0.5f },
-        { -0.5f,  0.5f, -0.5f },
-        {  0.5f,  0.5f, -0.5f },
-        {  0.5f, -0.5f, -0.5f },
+        { -0.5f, -1.5f, -0.5f },
+        { -0.5f,  1.5f, -0.5f },
+        {  0.5f,  1.5f, -0.5f },
+        {  0.5f, -1.5f, -0.5f },
 
-        { -0.5f, -0.5f,  0.5f },
-        { -0.5f,  0.5f,  0.5f },
-        {  0.5f,  0.5f,  0.5f },
-        {  0.5f, -0.5f,  0.5f }
+        { -0.5f, -1.5f,  0.5f },
+        { -0.5f,  1.5f,  0.5f },
+        {  0.5f,  1.5f,  0.5f },
+        {  0.5f, -1.5f,  0.5f }
     };
 
     mesh.indices = {
